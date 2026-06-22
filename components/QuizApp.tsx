@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { QuizArea, QuizQuestion } from '@/data/quizData';
+import { QuizQuestion } from '@/data/quizData';
 import {
   AnswerRecord,
   filterQuestionsByArea,
   filterWrongAnswers,
   getBestScoreKey,
   getScore,
-  shuffleQuestions
+  shuffleQuestions,
+  QuizArea
 } from '@/lib/quizUtils';
 import MainMenu from './MainMenu';
 import QuestionCard from './QuestionCard';
@@ -16,6 +17,7 @@ import ResultScreen from './ResultScreen';
 import WrongAnswerList from './WrongAnswerList';
 
 type Screen = 'main' | 'quiz' | 'result' | 'wrongList';
+
 const AREAS: QuizArea[] = ['vocabulary', 'reading1', 'reading2', 'all'];
 
 export default function QuizApp() {
@@ -29,16 +31,24 @@ export default function QuizApp() {
 
   useEffect(() => {
     const storedScores = Object.fromEntries(
-      AREAS.map((item) => [item, Number(window.localStorage.getItem(getBestScoreKey(item)) ?? 0)])
+      AREAS.map((item) => [
+        item,
+        Number(window.localStorage.getItem(getBestScoreKey(item)) ?? 0)
+      ])
     ) as Partial<Record<QuizArea, number>>;
+
     setBestScores(storedScores);
   }, []);
 
   const wrongAnswers = useMemo(() => filterWrongAnswers(answers), [answers]);
   const activeQuestion = questions[currentIndex];
 
-  const start = (nextArea: QuizArea, sourceQuestions: QuizQuestion[] = filterQuestionsByArea(nextArea)) => {
+  const start = (
+    nextArea: QuizArea,
+    sourceQuestions: QuizQuestion[] = filterQuestionsByArea(nextArea)
+  ) => {
     const nextQuestions = shuffleQuestions(sourceQuestions);
+
     setArea(nextArea);
     setQuestions(nextQuestions);
     setCurrentIndex(0);
@@ -53,14 +63,19 @@ export default function QuizApp() {
     setSelectedIndex(index);
     setAnswers((prev) => [
       ...prev.filter((item) => item.question.id !== activeQuestion.id),
-      { question: activeQuestion, selectedIndex: index, isCorrect: index === activeQuestion.answerIndex }
+      {
+        question: activeQuestion,
+        selectedIndex: index,
+        isCorrect: index === activeQuestion.answerIndex
+      }
     ]);
   };
 
   const finish = (finalAnswers: AnswerRecord[]) => {
-    const score = getScore(finalAnswers) * 10;
+    const score = getScore(finalAnswers);
     const key = getBestScoreKey(area);
     const best = Math.max(score, Number(window.localStorage.getItem(key) ?? 0));
+
     window.localStorage.setItem(key, String(best));
     setBestScores((prev) => ({ ...prev, [area]: best }));
     setScreen('result');
@@ -83,10 +98,16 @@ export default function QuizApp() {
 
   const retryOne = (index: number) => {
     const wrongAnswer = wrongAnswers[index];
-    if (wrongAnswer) start(wrongAnswer.question.area, [wrongAnswer.question]);
+
+    if (wrongAnswer) {
+      start(wrongAnswer.question.section, [wrongAnswer.question]);
+    }
   };
 
-  if (screen === 'main') return <MainMenu bestScores={bestScores} onStart={start} />;
+  if (screen === 'main') {
+    return <MainMenu bestScores={bestScores} onStart={start} />;
+  }
+
   if (screen === 'result') {
     return (
       <ResultScreen
@@ -98,8 +119,20 @@ export default function QuizApp() {
       />
     );
   }
-  if (screen === 'wrongList') return <WrongAnswerList wrongAnswers={wrongAnswers} onPick={retryOne} onHome={() => setScreen('main')} />;
-  if (!activeQuestion) return <MainMenu bestScores={bestScores} onStart={start} />;
+
+  if (screen === 'wrongList') {
+    return (
+      <WrongAnswerList
+        wrongAnswers={wrongAnswers}
+        onPick={retryOne}
+        onHome={() => setScreen('main')}
+      />
+    );
+  }
+
+  if (!activeQuestion) {
+    return <MainMenu bestScores={bestScores} onStart={start} />;
+  }
 
   return (
     <QuestionCard
