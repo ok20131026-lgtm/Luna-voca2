@@ -1,35 +1,26 @@
-# ESL Rainbows Orange Vol.2 Interactive Vocabulary Quiz
+# Ella Weekly Test Maker
 
-A static, Vercel-ready English vocabulary quiz app built from `quizData.json` for ESL Rainbows Orange Vol.2 Unit 1 Lesson 1 through Unit 8 Lesson 2.
+`Ella Weekly Test Maker`는 Unit 2. Wind 학습을 위한 모바일 우선 Next.js 퀴즈 앱입니다. 단어 10문항, Reading 1 10문항, Reading 2 10문항, 전체 30문항 모드를 제공합니다.
 
-## Features
-
-- Independent Unit/Lesson selection: learners can open any lesson immediately.
-- Multiple-choice vocabulary quizzes rendered from `quizData.json`.
-- Choice format: `English word [Korean part of speech] 🔊`.
-- Web Speech API pronunciation buttons using `en-US` and `rate: 0.85`.
-- No automatic pronunciation playback.
-- Immediate answer feedback with correct/incorrect highlighting.
-- Rationales for all choices after answering.
-- Toggleable Korean hint showing only the translated question meaning.
-- Progress bar, score, accuracy, and review list.
-- Lesson score persistence with `localStorage`, falling back to `sessionStorage` and memory.
-- Light/dark mode.
-- Link copy, TinyURL shortening, QR code, and KakaoTalk share fallback.
-
-## Deployment
-
-The app is a static Vercel deployment.
+## 실행 방법
 
 ```bash
+npm install
+npm run dev
 npm run build
 ```
 
-`build.mjs` creates `dist/` and copies the required static files. Vercel uses `vercel.json` with `outputDirectory` set to `dist`.
+개발 서버는 기본적으로 <http://localhost:3000>에서 실행됩니다.
 
-## Environment Variables
+## 데이터 위치
 
-- `PUBLIC_URL`: preferred share URL. If absent, the app uses `location.href`.
-- `KAKAO_JS_KEY`: Kakao JavaScript key. If absent, the Kakao button guides users to copy the link instead.
+퀴즈 데이터는 `data/quizData.ts`에 TypeScript 타입과 함께 들어 있습니다. 기존 `orange_quiz.json` / `quizData.json`의 Unit 2 어휘 데이터를 기반으로 단어 문제를 구성했고, Reading 문제는 Lesson 정보와 evidence 근거 문장을 포함합니다. Reading 지문의 한글뜻은 UI에 표시하지 않습니다.
 
-During build, these values are written to `dist/env.js`.
+## Vercel 배포
+
+Next.js는 Vercel에서 자동 감지되므로 별도 `vercel.json` 없이 배포할 수 있습니다.
+
+1. GitHub 저장소를 Vercel에 연결합니다.
+2. Framework Preset이 `Next.js`로 감지되는지 확인합니다.
+3. Build Command는 `npm run build`를 사용합니다.
+4. 배포 후 모바일 화면에서 퀴즈를 확인합니다.
