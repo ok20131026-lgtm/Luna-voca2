@@ -1,14 +1,47 @@
 'use client';
+
 import { useState } from 'react';
-import { QuizQuestion } from '@/data/quizData';
+import { QuizQuestion, quizData } from '@/data/quizData';
 
 export default function PassageBox({ question }: { question: QuizQuestion }) {
   const [open, setOpen] = useState(true);
-  if (!question.passage) return null;
-  return <section className="rounded-3xl border border-sky-100 bg-sky-50 p-4">
-    <button onClick={() => setOpen((value) => !value)} className="flex w-full items-center justify-between font-extrabold text-sky-700">
-      <span>{question.area === 'reading1' ? 'Reading 1' : 'Reading 2'} · {question.passageTitle}</span><span>{open ? '숨기기' : '보기'} 🐾</span>
-    </button>
-    {open && <p className="mt-3 whitespace-pre-line text-sm leading-snug text-slate-700">{question.passage}</p>}
-  </section>;
+
+  if (question.section === 'vocabulary') {
+    return null;
+  }
+
+  const passage = quizData.passages.find(
+    (item) => item.id === question.section
+  );
+
+  if (!passage) {
+    return null;
+  }
+
+  return (
+    <section className="rounded-3xl border border-sky-100 bg-sky-50 p-4">
+      <button
+        onClick={() => setOpen((value) => !value)}
+        className="flex w-full items-center justify-between gap-3 font-extrabold text-sky-700"
+      >
+        <span>
+          {question.section === 'reading1' ? 'Reading 1' : 'Reading 2'} ·{' '}
+          {passage.title}
+        </span>
+        <span className="shrink-0">{open ? '숨기기' : '보기'} 🐾</span>
+      </button>
+
+      {open && (
+        <div className="mt-3 whitespace-pre-line text-sm leading-snug text-slate-700">
+          {passage.passage.map((line, index) =>
+            line === '' ? (
+              <div key={`${passage.id}-${index}`} className="h-2" />
+            ) : (
+              <p key={`${passage.id}-${index}`}>{line}</p>
+            )
+          )}
+        </div>
+      )}
+    </section>
+  );
 }
